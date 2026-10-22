@@ -1,0 +1,510 @@
+.admin {
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+.admin-header {
+  height: 76px;
+  padding: 0 36px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+}
+.admin-header > a {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+}
+.admin-header strong {
+  font-size: 21px;
+}
+.admin-header span {
+  font-size: 14px;
+  color: var(--muted);
+  border-left: 1px solid var(--line);
+  padding-left: 22px;
+}
+.admin-header > div {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+  font-size: 14px;
+}
+.admin-header button {
+  border: 0;
+  background: none;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.admin-shell {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  max-width: 1560px;
+  margin: auto;
+}
+.admin aside {
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.admin aside button,
+.admin aside > a {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  padding: 13px 18px;
+  font-size: 14px;
+  border-radius: 3px;
+}
+.admin aside button[aria-current] {
+  background: #e4edf5;
+  color: #006b9b;
+  font-weight: 600;
+}
+.admin aside > a {
+  margin-top: 30px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.admin-main {
+  padding: 38px 42px 70px;
+  min-width: 0;
+  background: #fff;
+  min-height: calc(100vh - 76px);
+  border-left: 1px solid var(--line);
+}
+.admin-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+.admin-heading h1 {
+  font-size: 35px;
+}
+.admin-heading p {
+  margin: 10px 0 0;
+  font-size: 14px;
+}
+.admin-heading .eyebrow {
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+.admin-entries {
+  border-top: 1px solid var(--line);
+}
+.admin-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: white;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  padding: 25px 10px;
+  gap: 20px;
+}
+.admin-entry:hover {
+  background: #f5f9fc;
+}
+.admin-entry h3 {
+  font-size: 18px;
+  margin: 12px 0 8px;
+}
+.admin-entry small {
+  color: var(--muted);
+}
+.admin-entry .muted {
+  font-size: 12px;
+}
+.status {
+  display: inline-block;
+  padding: 3px 8px;
+  font-size: 11px;
+  margin-right: 14px;
+  border-radius: 2px;
+  background: #fff0d5;
+  color: #83570e;
+}
+.status.published {
+  background: #e4f3ed;
+  color: #26725b;
+}
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  margin-bottom: 25px;
+  background: #e9f5f0;
+  color: #256c54;
+  font-size: 14px;
+}
+.notice.error {
+  background: #fff2f0;
+  color: #a22b2b;
+}
+.notice button {
+  margin-left: auto;
+  border: 1px solid currentColor;
+  background: none;
+  padding: 6px;
+}
+.editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 35px;
+}
+.editor-main textarea {
+  font-size: 16px;
+}
+.editor-side {
+  padding-left: 26px;
+  border-left: 1px solid var(--line);
+}
+.editor-preview {
+  border: 1px solid var(--line);
+  padding: 20px;
+}
+.editor-preview summary {
+  cursor: pointer;
+}
+.editor-preview h1 {
+  font-size: 28px;
+  margin-top: 25px;
+}
+.field-help {
+  font-size: 12px;
+  margin-top: -10px;
+  line-height: 1.8;
+}
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.checkbox input {
+  width: 17px;
+  margin: 0;
+}
+.upload-field {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.upload-field img {
+  max-height: 150px;
+  object-fit: cover;
+}
+.upload-button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #a8bdce;
+  padding: 14px;
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+}
+.upload-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+.upload-field > button {
+  border: 0;
+  background: none;
+  text-align: left;
+  color: #7c4650;
+  font-size: 12px;
+  padding: 0;
+}
+.upload-field small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.publish-actions {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+.publish-actions .button {
+  width: 100%;
+  margin-bottom: 12px;
+}
+.publish-actions .field-help {
+  margin-top: 5px;
+}
+.settings-form {
+  max-width: 780px;
+}
+.settings-form h2 {
+  font-size: 25px;
+  margin: 40px 0 20px;
+}
+.setting-direction {
+  display: grid;
+  grid-template-columns: 45px 1fr;
+  gap: 20px;
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+.setting-direction .number {
+  font-size: 24px;
+}
+.account-form {
+  max-width: 450px;
+}
+.admin-login {
+  min-height: 100vh;
+  background: linear-gradient(125deg, #eef5fa, #fff);
+  padding: 35px;
+}
+.login-card {
+  max-width: 430px;
+  margin: 70px auto;
+  background: white;
+  padding: 40px;
+  border: 1px solid var(--line);
+  box-shadow: 0 20px 60px #142c4510;
+}
+.login-card h1 {
+  font-size: 36px;
+}
+.login-card > p {
+  margin-top: 12px;
+}
+.login-card .button {
+  width: 100%;
+  margin-top: 12px;
+}
+.inquiry {
+  border: 1px solid var(--line);
+  padding: 25px;
+  margin-bottom: 22px;
+}
+.inquiry h2 {
+  font-size: 21px;
+  margin-bottom: 8px;
+}
+.inquiry small {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 15px;
+}
+.inquiry a {
+  font-size: 14px;
+  color: var(--blue);
+}
+.inquiry select {
+  width: auto;
+  margin: 0;
+}
+.inquiry .metadata {
+  margin-top: 25px;
+  font-size: 12px;
+}
+.message-body {
+  white-space: pre-line;
+  color: var(--navy);
+  font-size: 15px;
+  margin-bottom: 0;
+}
+
+/* CMS foundations are scoped so public-site typography can evolve independently. */
+.admin,
+.admin-login {
+  font-size: 14px;
+}
+.admin label,
+.admin-login label {
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+.admin input,
+.admin textarea,
+.admin select,
+.admin-login input {
+  font-size: 14px;
+  padding: 11px 12px;
+  margin-top: 8px;
+}
+.admin .button,
+.admin-login .button {
+  min-height: 48px;
+  padding: 12px 25px;
+  font-size: 15px;
+}
+.admin .tabs button {
+  font-size: 14px;
+}
+.admin .prose {
+  font-size: 18px;
+}
+.admin .section-heading {
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+.admin .metadata {
+  font-size: 12px;
+}
+.admin .editor-main textarea {
+  font-size: 16px;
+}
+.admin .checkbox input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+}
+.admin .upload-button {
+  margin: 0;
+}
+.admin .upload-button input {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+.admin .inquiry select {
+  margin: 0;
+}
+.admin-entry > div,
+.inquiry .section-heading > div {
+  min-width: 0;
+}
+.inquiry a,
+.message-body {
+  overflow-wrap: anywhere;
+}
+.editor-preview .prose h2 {
+  font-size: 25px;
+}
+
+@media (max-width: 1200px) {
+  .editor {
+    grid-template-columns: minmax(0, 1fr) 245px;
+    gap: 20px;
+  }
+  .admin-main {
+    padding: 30px 25px;
+  }
+  .admin-shell {
+    grid-template-columns: 180px 1fr;
+  }
+}
+@media (max-width: 900px) {
+  .admin-shell {
+    display: block;
+  }
+  .admin aside {
+    flex-direction: row;
+    overflow: auto;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  .admin aside > a {
+    margin: 0;
+  }
+  .admin-main {
+    border-left: 0;
+  }
+  .editor {
+    grid-template-columns: minmax(0, 1fr) 230px;
+  }
+  .admin-header {
+    padding: 0 20px;
+  }
+  .admin-header > div {
+    gap: 18px;
+  }
+  .admin-header span {
+    display: none;
+  }
+}
+@media (max-width: 650px) {
+  .editor {
+    grid-template-columns: 1fr;
+  }
+  .editor-side {
+    border-left: 0;
+    padding: 25px 0 0;
+    border-top: 1px solid var(--line);
+  }
+  .admin-main {
+    padding: 25px 20px;
+  }
+  .admin-heading {
+    align-items: flex-start;
+    gap: 15px;
+  }
+  .admin-heading h1 {
+    font-size: 29px;
+  }
+  .admin-heading > .button {
+    padding: 9px 12px;
+    white-space: nowrap;
+    gap: 8px;
+  }
+  .admin-header {
+    height: 65px;
+  }
+  .admin-header strong {
+    font-size: 19px;
+  }
+  .admin-header > div {
+    gap: 12px;
+    font-size: 12px;
+  }
+  .admin-header button {
+    font-size: 12px;
+  }
+  .admin aside {
+    padding: 10px 12px;
+    gap: 0;
+  }
+  .admin aside button,
+  .admin aside > a {
+    padding: 12px;
+    font-size: 13px;
+  }
+  .admin-entry h3 {
+    font-size: 16px;
+  }
+  .admin-login {
+    padding: 25px 20px;
+  }
+  .login-card {
+    margin: 45px auto;
+    padding: 28px;
+  }
+  .inquiry {
+    padding: 20px;
+  }
+  .inquiry .section-heading {
+    display: block;
+  }
+  .admin .inquiry select {
+    margin-top: 18px;
+    max-width: 100%;
+  }
+  .inquiry small {
+    display: block;
+    margin: 8px 0;
+  }
+  .notice {
+    flex-wrap: wrap;
+  }
+}

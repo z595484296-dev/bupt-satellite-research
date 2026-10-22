@@ -1,0 +1,404 @@
+/* The institutional story uses one continuous Earth scene and live public content. */
+.about-rich {
+  --about-ink: #515158;
+}
+.about-masthead {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: #fff;
+}
+.about-masthead::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(0deg, #fff 1%, #ffffff00 34%),
+    linear-gradient(90deg, #fff 8%, #ffffffed 34%, #ffffff30 65%, #ffffff00 100%),
+    url("/assets/about-earth.png") right 21% / 82% auto no-repeat;
+}
+.about-masthead-inner {
+  padding-top: clamp(58px, 6vw, 90px);
+  padding-bottom: clamp(96px, 10vw, 145px);
+}
+.about-masthead h1 {
+  font-size: clamp(46px, 5.2vw, 72px);
+  line-height: 1.22;
+  white-space: pre-line;
+  max-width: 760px;
+  margin: 0 0 28px;
+}
+.about-masthead .page-kicker {
+  margin: 0 0 26px;
+}
+.about-lead {
+  max-width: 460px;
+  color: var(--about-ink);
+  font-size: 19px;
+  line-height: 1.9;
+  margin-bottom: 30px;
+}
+.about-masthead .actions {
+  justify-content: flex-start;
+}
+.about-masthead .button.secondary {
+  background: #ffffffb8;
+  border: 1px solid #b4c7e3;
+}
+.about-foundation {
+  display: grid;
+  grid-template-columns: 0.8fr 1.55fr;
+  gap: clamp(40px, 7vw, 105px);
+  padding-top: 15px;
+  padding-bottom: 48px;
+  scroll-margin-top: 100px;
+}
+.about-origin h2 {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--about-ink);
+}
+.about-founded {
+  margin-top: 20px;
+}
+.about-founded time {
+  display: block;
+  font-size: clamp(44px, 5.6vw, 76px);
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  color: #76767f;
+}
+.about-founded span {
+  display: block;
+  margin-top: 14px;
+  font-size: 20px;
+}
+.about-story {
+  border-left: 1px solid var(--line);
+  padding-left: clamp(28px, 4vw, 56px);
+}
+.about-story p {
+  font-size: 19px;
+  line-height: 1.9;
+  color: var(--about-ink);
+  margin: 0 0 18px;
+}
+.about-story p:last-child {
+  margin-bottom: 0;
+}
+.about-story .about-institution {
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin-bottom: 16px;
+}
+.about-foundations {
+  background: var(--pale);
+  border-radius: 20px;
+  padding: 26px 34px 32px;
+  margin-bottom: 86px;
+}
+.about-foundations > h2 {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--about-ink);
+  margin-bottom: 24px;
+}
+.about-discipline-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.about-discipline {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+.about-discipline + .about-discipline {
+  border-left: 1px solid #dcdce2;
+  padding-left: 32px;
+}
+.about-discipline svg {
+  color: var(--blue);
+}
+.about-discipline h3 {
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.about-section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 42px;
+}
+.about-section-heading h2,
+.about-connect h2 {
+  font-size: clamp(32px, 3.2vw, 44px);
+  line-height: 1.35;
+}
+.about-section-heading p {
+  font-size: 17px;
+  margin: 15px 0 0;
+}
+.about-section-heading > .text-link {
+  min-height: 44px;
+  flex-shrink: 0;
+}
+.about-research {
+  padding: 0 0 74px;
+  scroll-margin-top: 100px;
+}
+.direction-editorial {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.8fr) minmax(0, 1.85fr);
+  gap: clamp(32px, 5vw, 76px);
+  margin: 0;
+}
+.direction-editorial .direction-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-self: start;
+}
+.direction-editorial .direction-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: left;
+  min-height: 65px;
+  padding: 16px 20px;
+  font-size: 17px;
+  border-radius: 0 10px 10px 0;
+  border: 0;
+  border-left: 3px solid transparent;
+  color: var(--about-ink);
+}
+.direction-editorial .direction-tabs button:hover {
+  background: #f5f8fc;
+  color: var(--blue);
+}
+.direction-editorial .direction-tabs button[aria-selected="true"] {
+  background: #edf4ff;
+  color: #005bb9;
+  border-left-color: var(--blue);
+  font-weight: 600;
+}
+.direction-editorial .direction-results {
+  border-left: 1px solid var(--line);
+  padding-left: clamp(28px, 4vw, 54px);
+  min-height: 365px;
+}
+.direction-editorial .direction-panel {
+  display: block;
+  padding: 0 0 24px;
+  min-height: 0;
+}
+.direction-editorial .direction-panel h3 {
+  font-size: 28px;
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+.direction-editorial .direction-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.direction-editorial .direction-card {
+  border-radius: 0;
+  overflow: visible;
+  border-top: 1px solid #e3e3e8;
+  background: transparent;
+}
+.direction-editorial .direction-card .direction-card-copy {
+  min-height: 0;
+  padding: 22px 0;
+}
+.direction-editorial .direction-card h4 {
+  font-size: 21px;
+  font-weight: 600;
+  line-height: 1.55;
+  margin-bottom: 8px;
+  text-wrap: pretty;
+}
+.direction-editorial .direction-card p {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+.direction-editorial .direction-card .result-kind {
+  font-size: 12px;
+  color: var(--about-ink);
+  margin-bottom: 9px;
+}
+.direction-editorial .direction-card .text-link {
+  min-height: 36px;
+  margin-top: 0;
+  font-size: 14px;
+}
+.direction-editorial .direction-empty {
+  padding: 24px 0;
+}
+.about-practice {
+  padding-top: 58px;
+  padding-bottom: 76px;
+  border-top: 1px solid var(--line);
+}
+.about-journal {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.about-journal-link {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr) 24px;
+  gap: 40px;
+  position: relative;
+  padding: 25px 0;
+}
+.about-journal-link::before {
+  content: "";
+  position: absolute;
+  width: 1px;
+  top: 0;
+  bottom: 0;
+  left: 143px;
+  background: #dfe6ef;
+}
+.about-journal li:first-child .about-journal-link::before { top: 35px; }
+.about-journal li:last-child .about-journal-link::before { bottom: calc(100% - 35px); }
+.about-journal-link::after {
+  content: "";
+  position: absolute;
+  top: 34px;
+  left: 140px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 5px #fff;
+}
+.about-journal-link time {
+  font-size: 14px;
+  line-height: 26px;
+  color: var(--about-ink);
+  font-variant-numeric: tabular-nums;
+}
+.about-journal-category {
+  display: block;
+  color: var(--about-ink);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.about-journal-content h3 {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.6;
+  text-wrap: pretty;
+  transition: color 180ms;
+}
+.about-journal-content p {
+  font-size: 16px;
+  margin: 10px 0 0;
+}
+.about-journal-link > svg {
+  color: var(--about-ink);
+  margin-top: 25px;
+  transition: transform 180ms;
+}
+.about-journal-link:hover > svg {
+  color: var(--blue);
+  transform: translate(2px, -2px);
+}
+.about-journal li + li .about-journal-content {
+  border-top: 1px solid #e3e3e8;
+  padding-top: 24px;
+  margin-top: -24px;
+}
+.about-connect {
+  background: var(--pale);
+  padding: 54px 0 60px;
+}
+.about-connect > .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+}
+.about-connect p {
+  font-size: 17px;
+  margin: 16px 0 0;
+}
+.about-connect .button {
+  flex-shrink: 0;
+}
+@media (max-width: 1000px) {
+  .about-masthead::before {
+    background-size: auto, auto, 90% auto;
+    background-position: center, center, right 20%;
+  }
+  .about-foundation { grid-template-columns: 0.85fr 1.4fr; gap: 34px; }
+  .about-story { padding-left: 30px; }
+  .about-discipline { gap: 12px; }
+  .about-discipline h3 { font-size: 17px; }
+  .about-discipline + .about-discipline { padding-left: 20px; }
+  .direction-editorial { gap: 28px; grid-template-columns: 230px minmax(0, 1fr); }
+  .direction-editorial .direction-results { padding-left: 28px; }
+  .direction-editorial .direction-tabs button { font-size: 16px; padding-inline: 14px; }
+  .direction-editorial .direction-panel h3 { font-size: 25px; }
+}
+@media (max-width: 700px) {
+  .about-masthead::before {
+    background:
+      linear-gradient(0deg, #fff, #ffffff00 35%),
+      linear-gradient(90deg, #ffffffed, #ffffffb3 65%, #ffffff59),
+      url("/assets/about-earth.png") right 25% / cover no-repeat;
+  }
+  .about-masthead-inner { padding-top: 42px; padding-bottom: 76px; }
+  .about-masthead h1 { font-size: clamp(37px, 8.7vw, 49px); margin-bottom: 24px; }
+  .about-masthead .page-kicker { margin-bottom: 22px; }
+  .about-lead { font-size: 17px; max-width: 480px; margin-bottom: 26px; }
+  .about-foundation { grid-template-columns: 1fr; gap: 30px; padding-bottom: 32px; }
+  .about-founded { display: flex; align-items: baseline; gap: 20px; margin-top: 16px; flex-wrap: wrap; }
+  .about-founded time { font-size: 48px; }
+  .about-founded span { font-size: 16px; margin: 0; }
+  .about-story { border-left: 0; border-top: 1px solid var(--line); padding: 24px 0 0; }
+  .about-story p { font-size: 17px; }
+  .about-story .about-institution { font-size: 14px; }
+  .about-foundations { padding: 24px; margin-bottom: 54px; border-radius: 16px; }
+  .about-foundations > h2 { margin-bottom: 8px; }
+  .about-discipline-list { grid-template-columns: 1fr; }
+  .about-discipline { padding: 16px 0; gap: 18px; }
+  .about-discipline + .about-discipline { border-left: 0; border-top: 1px solid #e0e0e6; padding-left: 0; }
+  .about-discipline:last-child { padding-bottom: 0; }
+  .about-discipline h3 { font-size: 18px; }
+  .about-section-heading { align-items: flex-start; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .about-section-heading h2, .about-connect h2 { font-size: 30px; }
+  .about-section-heading > .text-link { font-size: 15px; }
+  .direction-editorial { grid-template-columns: 1fr; gap: 28px; }
+  .direction-editorial .direction-tabs { gap: 4px; }
+  .direction-editorial .direction-tabs button { min-height: 52px; padding: 12px 16px; }
+  .direction-editorial .direction-results { padding-left: 0; min-height: 0; border-left: 0; }
+  .direction-editorial .direction-panel h3 { font-size: 25px; }
+  .direction-editorial .direction-card h4 { font-size: 21px; }
+  .direction-editorial .direction-card .text-link { min-height: 44px; }
+  .about-research { padding-bottom: 44px; }
+  .about-practice { padding-top: 38px; padding-bottom: 44px; }
+  .about-journal-link { grid-template-columns: minmax(0, 1fr) 24px; gap: 10px 16px; padding: 22px 0 22px 22px; }
+  .about-journal-link::before { left: 2px; }
+  .about-journal-link::after { left: -1px; top: 33px; }
+  .about-journal-link time { grid-column: 1 / -1; font-size: 13px; }
+  .about-journal-link > svg { margin-top: 28px; }
+  .about-journal-content h3 { font-size: 20px; }
+  .about-journal li + li .about-journal-content { padding-top: 0; margin-top: 0; border-top: 0; }
+  .about-connect { padding: 38px 0 44px; }
+  .about-connect > .container { align-items: flex-start; flex-direction: column; gap: 24px; }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "satellite-center-website",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env server/index.mjs",
+    "start": "node --env-file-if-exists=.env server/index.mjs --production",
+    "test": "node --test tests/content-navigation.test.mjs tests/atomic-file.test.mjs tests/hosted-mirror.test.mjs tests/sites-mirror-lock.test.mjs tests/api.test.mjs tests/flowus.test.mjs tests/flowus-cli.test.mjs tests/flowus-source-shapes.test.mjs",
+    "build": "vite build && node scripts/prepare-sites-build.mjs",
+    "preview": "vite preview",
+    "test:sites": "node --test tests/sites-worker.test.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/noto-sans-sc": "^5.3.1",
+    "@fontsource-variable/noto-serif-sc": "^5.3.1",
+    "@phosphor-icons/react": "^2.1.10",
+    "@vitejs/plugin-react": "5.0.4",
+    "busboy": "^1.6.0",
+    "file-type": "^22.2.0",
+    "ipaddr.js": "^2.5.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-stringify": "^11.0.0",
+    "undici": "^7.30.1",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0",
+    "vite": "6.4.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10"
+  }
+}

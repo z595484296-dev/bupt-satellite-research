@@ -1,0 +1,125 @@
+body:has(.home-satellite) {
+  --home-gutter: clamp(24px, 4vw, 64px);
+  --home-width: 1460px;
+}
+
+.home-satellite .container,
+body:has(.home-satellite) .header-inner,
+body:has(.home-satellite) .footer-inner {
+  width: min(var(--home-width), calc(100% - var(--home-gutter) - var(--home-gutter)));
+}
+
+.home-satellite .home-intro > p {
+  max-width: 35em;
+}
+
+.home-satellite .insight-pair .metadata {
+  gap: 8px 18px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-weight: 350;
+  line-height: 1.5;
+}
+
+.home-satellite .insight-pair .tag {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.home-satellite .insight-pair h3 {
+  margin: 0;
+  font-size: clamp(28px, 2.1vw, 32px);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  word-break: normal;
+  line-break: strict;
+}
+
+.home-satellite .insight-title-clause {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+}
+
+.home-satellite .insight-title-term {
+  white-space: nowrap;
+}
+
+.home-satellite .insight-pair p {
+  max-width: 38em;
+  margin: 12px 0 0;
+  font-size: 18px;
+  font-weight: 350;
+  line-height: 1.65;
+}
+
+.home-satellite .insight-pair article > .text-link {
+  margin-top: 38px;
+  font-size: 17px;
+  font-weight: 350;
+}
+
+.satellite-hero {
+  position: relative;
+  width: 100%;
+  max-width: 1920px;
+  aspect-ratio: 1852 / 849;
+  margin: -16px auto 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.satellite-hero-plane {
+  position: absolute;
+  inset: -12px;
+}
+
+.satellite-hero-plane img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 1024px) {
+  body:has(.home-satellite) {
+    --home-gutter: 24px;
+  }
+}
+
+@media (max-width: 850px) {
+  .home-satellite .insight-pair h3 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  body:has(.home-satellite) {
+    --home-gutter: 20px;
+  }
+
+  .satellite-hero {
+    width: 140%;
+    max-width: none;
+    margin: -14px 0 0 -20%;
+  }
+
+  .satellite-hero-plane img {
+    object-position: 54% center;
+  }
+
+  .home-satellite .insight-pair p {
+    margin-top: 12px;
+    font-size: 16px;
+  }
+
+  .home-satellite .insight-pair article > .text-link {
+    margin-top: 36px;
+    font-size: 16px;
+  }
+}
+
