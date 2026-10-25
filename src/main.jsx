@@ -7,6 +7,7 @@ import "./flowus.css";
 import "./about.css";
 import "./site-refinements.css";
 import "./home-satellite.css";
+import "./design-refresh.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>

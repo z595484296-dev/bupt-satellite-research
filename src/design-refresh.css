@@ -1,0 +1,902 @@
+/* 设计更新层：文字间距与字重对比、统一的卡片文字比例、动效所需的样式。
+   在 main.jsx 中最后引入，覆盖既有样式；顶栏与页脚不在本次修改范围内。 */
+
+:root {
+  --ink-2: #3a3a3f;
+  --faint: #86868b;
+  --w-display: 650;
+  --w-title: 600;
+  --w-body: 350;
+  --w-light: 300;
+  --ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------- 全局排版：标题更紧凑有力，正文更轻 ---------- */
+#main h1,
+#main h2,
+#main h3,
+#main h4 {
+  letter-spacing: -0.02em;
+}
+#main p {
+  font-weight: var(--w-body);
+}
+#main .button {
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  transition:
+    color 0.3s,
+    background-color 0.3s,
+    border-color 0.3s,
+    transform 0.35s var(--ease-soft);
+}
+#main .button:active {
+  transform: scale(0.97);
+}
+#main .text-link svg,
+#main .button svg {
+  transition: transform 0.5s var(--ease-soft);
+}
+#main .button:hover svg {
+  transform: translateX(3px);
+}
+
+/* ---------- 同类“元信息 + 标题 + 摘要 + 阅读入口”组合 ----------
+   所有字号与间距都按标题字号 --t 换算，比例取自确认的参考图：
+   元信息 0.56、摘要 0.66、阅读入口 0.71；字面间距 1.07 / 0.72 / 1.74。 */
+#main .cg {
+  --t: 26px;
+  --gap-meta: calc(var(--t) * 0.69);
+  --gap-sum: calc(var(--t) * 0.35);
+  --gap-link: calc(var(--t) * 1.4);
+}
+#main .cg .cg-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 1.04em;
+  margin: 0;
+  font-size: min(calc(var(--t) * 0.56), 18px);
+  line-height: 1.3;
+  font-weight: var(--w-light);
+  color: var(--faint);
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+#main .cg .cg-meta .tag,
+#main .cg .tag.cg-meta {
+  font-size: inherit;
+  font-weight: 400;
+  color: var(--blue);
+}
+#main .cg .tag.cg-meta {
+  font-size: min(calc(var(--t) * 0.56), 18px);
+}
+#main .cg .cg-title {
+  margin: var(--gap-meta) 0 0;
+  max-width: none;
+  font-size: var(--t);
+  line-height: 1.41;
+  font-weight: var(--w-title);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  line-break: strict;
+}
+#main .cg .cg-title:first-child {
+  margin-top: 0;
+}
+#main .cg .cg-sum {
+  margin: var(--gap-sum) 0 0;
+  max-width: 40em;
+  font-size: min(calc(var(--t) * 0.66), 21px);
+  line-height: 1.38;
+  font-weight: var(--w-light);
+  color: var(--muted);
+  letter-spacing: 0.01em;
+  text-wrap: pretty;
+}
+#main .cg .cg-sum2 {
+  margin: 0.7em 0 0;
+  font-size: min(calc(var(--t) * 0.58), 18px);
+  line-height: 1.5;
+  font-weight: var(--w-light);
+  text-wrap: pretty;
+}
+#main .cg .cg-link {
+  margin-top: var(--gap-link);
+  min-height: 0;
+  font-size: min(calc(var(--t) * 0.71), 20px);
+  line-height: 1.3;
+  gap: 0.95em;
+  font-weight: var(--w-body);
+}
+#main .cg .cg-link svg {
+  width: 1em;
+  height: 1em;
+}
+
+/* 各处的标题字号 */
+#main .insight-pair .cg { --t: clamp(24px, 2.1vw, 32px); }
+#main .direction-card .cg { --t: clamp(21px, 1.75vw, 25px); }
+#main .direction-editorial .direction-card .cg { --t: 21px; --gap-link: calc(var(--t) * 1.1); }
+#main .article-list article:not(.featured) .cg { --t: clamp(22px, 1.9vw, 27px); }
+#main .article-list .featured .cg { --t: clamp(27px, 2.8vw, 40px); }
+#main .research-list .cg { --t: clamp(25px, 2.3vw, 32px); }
+#main .timeline .cg { --t: clamp(20px, 1.7vw, 24px); }
+#main .about-journal-content.cg { --t: 21px; }
+
+/* 精选卡片的阅读入口保留蓝色胶囊按钮，不随比例放大 */
+#main .featured .cg .cg-link,
+#main .research-list .cg .cg-link {
+  font-size: 15px;
+  gap: 10px;
+  font-weight: 500;
+}
+
+/* 标题语义断行：按中文标点分句，“卫星互联网”不拆开（首页观点、列表、详情页共用） */
+#main .insight-title-clause {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+}
+#main .insight-title-term {
+  white-space: nowrap;
+}
+
+/* ---------- 可绘制的分隔线（由动效把 --rule 从 0 推到 1） ---------- */
+#main .home-intro > p,
+#main .insight-pair article + article,
+#main .about-story {
+  position: relative;
+  border-left-color: transparent;
+}
+#main .home-intro > p::before,
+#main .insight-pair article + article::before,
+#main .about-story::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line);
+  transform: scaleY(var(--rule, 1));
+  transform-origin: top;
+}
+
+/* ---------- 首页 ---------- */
+#main .hero-copy {
+  padding-top: clamp(44px, 5.6vw, 84px);
+}
+#main .hero-copy h1 {
+  font-size: clamp(40px, 5.2vw, 76px);
+  line-height: 1.14;
+  font-weight: var(--w-display);
+  letter-spacing: -0.02em;
+  white-space: normal;
+}
+.hero-line {
+  display: block;
+  white-space: nowrap;
+}
+.hero-char {
+  display: inline-block;
+}
+#main .hero-copy > p {
+  margin: clamp(20px, 2.2vw, 30px) auto 0;
+  font-size: clamp(16px, 1.45vw, 20px);
+  font-weight: var(--w-light);
+  letter-spacing: 0.08em;
+  line-height: 1.7;
+}
+#main .hero-copy .actions {
+  margin-top: clamp(28px, 2.8vw, 40px);
+  gap: 14px;
+}
+#main .hero-copy .button {
+  min-height: 48px;
+  padding: 12px 26px;
+}
+#main .satellite-hero {
+  margin-top: calc(-1 * clamp(4px, 2vw, 32px));
+  background: transparent;
+}
+/* 首屏两层：地球背景四周柔和融入白底，卫星单独一层保持完整 */
+#main .satellite-hero-plane {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0, #000 14%, #000 70%, transparent calc(100% - 16px)),
+    linear-gradient(to right, transparent 0, #000 10%, #000 90%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent 0, #000 14%, #000 70%, transparent calc(100% - 16px)),
+    linear-gradient(to right, transparent 0, #000 10%, #000 90%, transparent 100%);
+  mask-composite: intersect;
+}
+.satellite-object {
+  position: absolute;
+  inset: -12px;
+  pointer-events: none;
+}
+.satellite-object img {
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+#main .home-intro {
+  padding: clamp(80px, 9vw, 140px) 0;
+  align-items: start;
+}
+#main .home-intro h2 {
+  font-size: clamp(32px, 3.4vw, 48px);
+  font-weight: var(--w-title);
+  line-height: 1.26;
+}
+#main .home-intro .button {
+  margin-top: 40px;
+}
+#main .home-intro > p {
+  font-size: clamp(17px, 1.35vw, 19px);
+  line-height: 1.95;
+  font-weight: var(--w-light);
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+#main .home-research {
+  padding: clamp(72px, 8vw, 128px) 0;
+}
+#main .home-research h2,
+#main .home-editorial h2,
+#main .about-section-heading h2,
+#main .about-connect h2,
+#main .collaboration-cta h2 {
+  font-size: clamp(30px, 3.4vw, 48px);
+  font-weight: var(--w-title);
+  line-height: 1.22;
+}
+#main .home-editorial {
+  padding: clamp(80px, 8vw, 128px) 0 0;
+}
+#main .home-editorial .section-heading {
+  align-items: baseline;
+  margin-bottom: clamp(40px, 4.5vw, 64px);
+}
+#main .insight-pair {
+  gap: clamp(40px, 6vw, 104px);
+}
+#main .insight-pair article + article {
+  padding-left: clamp(40px, 6vw, 104px);
+}
+
+#main .home-news {
+  padding: clamp(72px, 7vw, 112px) 0 0;
+}
+#main .home-news .section-heading {
+  align-items: baseline;
+  margin-bottom: 20px;
+}
+#main .home-news .section-heading h2 {
+  font-size: clamp(22px, 1.8vw, 26px);
+  font-weight: var(--w-title);
+}
+#main .home-news-list .news-row {
+  border-bottom: 0;
+}
+#main .home-news-list .news-row:last-child {
+  border-bottom: 1px solid var(--line);
+}
+#main .news-row .news-kind {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  min-width: 5.5em;
+}
+#main .news-row time {
+  font-weight: var(--w-light);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+#main .news-row h3 {
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+#main .collaboration-cta {
+  padding: clamp(104px, 11vw, 168px) 0;
+}
+#main .collaboration-cta p {
+  margin: 18px 0 40px;
+  font-size: 18px;
+  font-weight: var(--w-light);
+  letter-spacing: 0.1em;
+}
+#main .library > .collaboration-cta {
+  padding-bottom: 24px;
+}
+
+/* ---------- 研究方向：滑动底块 ---------- */
+#main .direction-tabs {
+  position: relative;
+}
+#main .direction-tabs button {
+  position: relative;
+  z-index: 1;
+  transition:
+    color 0.35s var(--ease-soft),
+    border-color 0.35s var(--ease-soft),
+    background-color 0.35s var(--ease-soft);
+}
+#main .direction-tabs button[aria-selected="true"] {
+  background: transparent;
+  border-color: transparent;
+}
+.tab-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  border-radius: 999px;
+  background: var(--blue);
+  box-shadow: 0 10px 24px -14px rgba(0, 113, 227, 0.8);
+  pointer-events: none;
+  opacity: 0;
+}
+.tab-indicator[data-ready="true"] {
+  opacity: 1;
+}
+#main .direction-editorial .tab-indicator {
+  border-radius: 0 10px 10px 0;
+  background: #edf4ff;
+  box-shadow: inset 3px 0 0 var(--blue);
+}
+#main .direction-editorial .direction-tabs button[aria-selected="true"] {
+  background: transparent;
+  border-left-color: transparent;
+}
+#main .direction-cards {
+  animation: none;
+}
+#main .direction-panel h3 {
+  font-weight: 540;
+  letter-spacing: 0.01em;
+}
+#main .direction-editorial .direction-panel h3 {
+  font-weight: var(--w-title);
+}
+
+/* 卡片悬停：缓慢浮起，配图缓慢放大 */
+#main .direction-explorer:not(.direction-editorial) .direction-card {
+  transition:
+    transform 0.8s var(--ease-soft),
+    box-shadow 0.8s var(--ease-soft);
+}
+#main .direction-explorer:not(.direction-editorial) .direction-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 60px -36px rgba(16, 24, 40, 0.28);
+}
+#main .direction-art,
+#main .library-art {
+  transition: transform 1.6s var(--ease-soft);
+}
+#main .direction-card:hover .direction-art,
+#main .research-list article:hover .library-art {
+  transform: scale(1.04);
+}
+#main .direction-card:hover .cg-title a {
+  color: var(--blue);
+}
+#main .direction-card .cg-title a {
+  transition: color 0.4s var(--ease-soft);
+}
+
+/* 列表行悬停：整行浅底色，标题轻移 */
+#main .news-row {
+  position: relative;
+  isolation: isolate;
+}
+#main .news-row::before {
+  content: "";
+  position: absolute;
+  inset: 0 -16px;
+  z-index: -1;
+  border-radius: 14px;
+  background: var(--pale);
+  opacity: 0;
+  transform: scaleX(0.97);
+  transition:
+    opacity 0.5s var(--ease-soft),
+    transform 0.6s var(--ease-soft);
+}
+#main .news-row:hover::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+#main .news-row h3 {
+  transition: transform 0.6s var(--ease-soft), color 0.4s;
+}
+#main .news-row:hover h3 {
+  transform: translateX(6px);
+}
+#main .news-row > svg {
+  transition: transform 0.6s var(--ease-soft), color 0.4s;
+}
+#main .news-row:hover > svg {
+  color: var(--blue);
+  transform: translateX(4px);
+}
+#main .news-page .timeline .news-row:hover {
+  background: transparent;
+}
+
+/* ---------- 栏目页标题 ---------- */
+#main .page-title {
+  padding: clamp(48px, 6vw, 88px) 0 clamp(32px, 3.6vw, 48px);
+}
+#main .page-kicker {
+  font-size: 14px;
+  font-weight: 450;
+  letter-spacing: 0.12em;
+  margin-bottom: 18px;
+}
+#main .page-title h1 {
+  font-size: clamp(38px, 4.4vw, 60px);
+  line-height: 1.18;
+  font-weight: var(--w-display);
+}
+#main .page-title > p:last-child:not(.page-kicker) {
+  margin-top: 20px;
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: var(--w-light);
+  letter-spacing: 0.06em;
+}
+
+/* 研究与观点：筛选区对齐 */
+#main .library-tools {
+  align-items: flex-start;
+}
+#main .library-tools .search {
+  flex-shrink: 0;
+  min-height: 42px;
+}
+#main .tabs button {
+  transition:
+    color 0.3s var(--ease-soft),
+    background-color 0.3s var(--ease-soft),
+    border-color 0.3s var(--ease-soft),
+    transform 0.3s var(--ease-soft);
+}
+#main .tabs button:active {
+  transform: scale(0.96);
+}
+#main .archive-count {
+  font-weight: var(--w-light);
+  letter-spacing: 0.04em;
+}
+
+/* 研究与成果：所有研究条目统一为同一种卡片 */
+#main .research-list article {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  background: var(--pale);
+  transition:
+    transform 0.8s var(--ease-soft),
+    box-shadow 0.8s var(--ease-soft);
+}
+#main .research-list article + article {
+  margin-top: 20px;
+  border-top: 0;
+}
+#main .research-list article:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 30px 60px -40px rgba(16, 24, 40, 0.3);
+}
+#main .research-list .entry-link {
+  position: relative;
+  z-index: 1;
+  padding: clamp(32px, 3.6vw, 48px);
+  min-height: 0;
+}
+#main .research-list .featured .entry-link {
+  min-height: 340px;
+  padding-bottom: 120px;
+}
+#main .research-list .featured:not(.with-cover) {
+  background: var(--pale);
+}
+#main .research-list .entry-link:hover {
+  color: inherit;
+}
+#main .research-list .entry-link .text-link {
+  background: var(--blue);
+  border-radius: 999px;
+  padding: 10px 20px;
+  min-height: 42px;
+  color: #fff;
+}
+#main .research-list .entry-link:hover .text-link svg {
+  transform: translateX(3px);
+}
+
+/* 观点洞察列表 */
+#main .article-list .entry-link:hover .cg-title {
+  color: var(--blue);
+}
+#main .article-list .cg-title {
+  transition: color 0.4s var(--ease-soft);
+}
+#main .article-list .entry-link:hover {
+  color: inherit;
+}
+#main .article-list .featured .cg-link {
+  color: #fff;
+}
+
+/* 中心动态 */
+#main .timeline .year-label {
+  font-weight: var(--w-light);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+#main .news-page .timeline .news-row time {
+  font-weight: var(--w-light);
+}
+#main .news-page .timeline .news-row .cg-title {
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* ---------- 关于中心 ---------- */
+/* 关于中心首屏背景：地球只占右侧一块，保持原图清晰度；左、上、下三边柔和融入白底，宽屏不再放大成模糊条纹 */
+#main .about-masthead::before {
+  inset: 0 0 0 auto;
+  width: min(64%, 1180px);
+  background: url("/assets/about-earth.png") center 28% / cover no-repeat;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 42%),
+    linear-gradient(to bottom, transparent 0, #000 22%, #000 58%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 42%),
+    linear-gradient(to bottom, transparent 0, #000 22%, #000 58%, transparent 100%);
+  mask-composite: intersect;
+}
+#main .about-masthead h1 {
+  font-weight: var(--w-display);
+  line-height: 1.18;
+}
+#main .about-lead {
+  font-weight: var(--w-light);
+  letter-spacing: 0.02em;
+}
+#main .about-founded time {
+  font-weight: var(--w-light);
+  letter-spacing: -0.03em;
+}
+#main .about-founded span {
+  font-weight: 450;
+}
+#main .about-story p {
+  font-weight: var(--w-light);
+  letter-spacing: 0.02em;
+}
+#main .about-story .about-institution {
+  font-weight: 500;
+}
+#main .about-discipline h3 {
+  font-weight: 540;
+}
+#main .about-section-heading p,
+#main .about-connect p {
+  font-weight: var(--w-light);
+  letter-spacing: 0.06em;
+}
+#main .about-journal-link time {
+  font-weight: var(--w-light);
+}
+#main .about-journal-content .cg-meta {
+  color: var(--faint);
+}
+#main .about-journal-link:hover .cg-title {
+  color: var(--blue);
+}
+#main .about-journal-content .cg-title {
+  transition: color 0.4s var(--ease-soft);
+}
+
+/* ---------- 文章详情 ---------- */
+#main .detail h1 {
+  font-weight: var(--w-display);
+  line-height: 1.4;
+  margin-bottom: 28px;
+}
+#main .detail > .metadata {
+  margin-bottom: 20px;
+  font-weight: var(--w-light);
+  letter-spacing: 0.03em;
+}
+#main .detail > .metadata .tag {
+  font-weight: 400;
+}
+#main .detail .lead,
+#main .detail-summary {
+  font-weight: var(--w-light);
+  letter-spacing: 0.02em;
+}
+#main .prose p,
+#main .prose li {
+  font-weight: 380;
+}
+#main .back-link svg {
+  transition: transform 0.5s var(--ease-soft);
+}
+#main .back-link:hover svg {
+  transform: translateX(-4px);
+}
+#main .related-row h3 {
+  font-weight: 540;
+  transition: color 0.4s var(--ease-soft);
+}
+#main .related-row:hover h3 {
+  color: var(--blue);
+}
+#main .related-row > svg {
+  transition: transform 0.6s var(--ease-soft);
+}
+#main .related-row:hover > svg {
+  transform: translateX(4px);
+}
+
+.reading-progress {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 49;
+  height: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.reading-progress[data-visible="true"] {
+  opacity: 1;
+}
+.reading-progress span {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.back-to-top {
+  position: fixed;
+  right: clamp(16px, 3vw, 32px);
+  bottom: clamp(16px, 3vw, 32px);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #ffffffe6;
+  backdrop-filter: blur(12px);
+  color: var(--ink-2);
+  box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transform: translateY(10px);
+  pointer-events: none;
+  transition:
+    opacity 0.5s var(--ease-soft),
+    transform 0.5s var(--ease-soft),
+    color 0.3s,
+    border-color 0.3s;
+}
+.back-to-top svg {
+  transform: rotate(-90deg);
+}
+.back-to-top[data-show="true"] {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  color: var(--blue);
+  border-color: #86b8f0;
+}
+
+/* ---------- 合作交流 ---------- */
+#main .contact-intro h2 {
+  font-weight: var(--w-title);
+}
+#main .cooperation-choice {
+  transition:
+    border-color 0.4s var(--ease-soft),
+    background-color 0.4s var(--ease-soft),
+    transform 0.5s var(--ease-soft),
+    box-shadow 0.5s var(--ease-soft);
+}
+#main .cooperation-choice:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px -28px rgba(0, 60, 140, 0.35);
+}
+#main .cooperation-choice strong {
+  font-weight: var(--w-title);
+}
+#main .choice-description {
+  font-weight: var(--w-light);
+}
+#main .contact-form h2 {
+  font-weight: var(--w-title);
+}
+#main .contact-form input,
+#main .contact-form select,
+#main .contact-form textarea {
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+#main .contact-form input:focus,
+#main .contact-form select:focus,
+#main .contact-form textarea:focus {
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.12);
+}
+#main .submit-button.is-busy {
+  cursor: progress;
+  opacity: 0.85;
+}
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #ffffff66;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 1000px) {
+  #main .about-masthead::before {
+    width: 72%;
+  }
+}
+@media (max-width: 700px) {
+  /* 手机：背景铺满，文字下方加一层白色薄纱保证可读 */
+  #main .about-masthead::before {
+    width: 100%;
+    background:
+      linear-gradient(90deg, #ffffffeb, #ffffffa6 65%, #ffffff40),
+      url("/assets/about-earth.png") right 25% / cover no-repeat;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 60%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 60%, transparent 100%);
+  }
+  #main .about-story {
+    border-top-color: transparent;
+  }
+  #main .about-story::before {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+    transform: scaleX(var(--rule, 1));
+    transform-origin: left;
+  }
+  #main .direction-editorial .direction-card .cg {
+    --t: 20px;
+  }
+}
+@media (max-width: 600px) {
+  #main .hero-copy h1 {
+    font-size: clamp(38px, 11.4vw, 52px);
+  }
+  #main .hero-copy > p {
+    letter-spacing: 0.04em;
+  }
+  #main .hero-copy .button {
+    min-height: 46px;
+    padding: 11px 22px;
+  }
+  .satellite-object img {
+    object-position: 54% center;
+  }
+  /* 手机上卫星图左右已超出屏幕，只保留上下渐隐 */
+  #main .satellite-hero-plane {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 72%, transparent calc(100% - 16px));
+    mask-image: linear-gradient(to bottom, transparent 0, #000 12%, #000 72%, transparent calc(100% - 16px));
+  }
+  #main .home-intro > p::before {
+    display: none;
+  }
+  #main .insight-pair article + article {
+    padding-left: 0;
+    border-top-color: transparent;
+  }
+  #main .insight-pair article + article::before {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+    transform: scaleX(var(--rule, 1));
+    transform-origin: left;
+  }
+  /* 手机上先读简介，再看按钮 */
+  #main .home-intro > div {
+    display: contents;
+  }
+  #main .home-intro > p {
+    order: 2;
+  }
+  #main .home-intro .button {
+    order: 3;
+    justify-self: start;
+    margin-top: 4px;
+  }
+  #main .page-title h1 {
+    font-size: clamp(32px, 9vw, 38px);
+    line-height: 1.25;
+  }
+  #main .detail h1 {
+    font-size: 26px;
+    line-height: 1.45;
+  }
+  #main .home-news .section-heading {
+    display: flex;
+  }
+  #main .home-news .section-heading > .text-link {
+    margin-top: 0;
+  }
+  #main .library-tools {
+    align-items: stretch;
+  }
+  /* 分类标签横向滑动，不再折成多行 */
+  #main .library-tools .tabs {
+    min-width: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - var(--gutter)), transparent);
+  }
+  #main .library-tools .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  #main .library-tools .tabs button {
+    flex-shrink: 0;
+  }
+  #main .research-list .featured .entry-link {
+    min-height: 360px;
+  }
+  .back-to-top {
+    width: 44px;
+    height: 44px;
+  }
+}
+@media (max-width: 360px) {
+  #main .hero-copy > p {
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  #main .direction-tabs button {
+    font-size: 12.5px;
+    padding-inline: 6px;
+    letter-spacing: 0;
+  }
+}

@@ -28,6 +28,16 @@ import {
   Circle,
   ArrowUpRight,
 } from "@phosphor-icons/react";
+import {
+  usePageMotion,
+  useListMotion,
+  useTabMotion,
+  useReadingProgress,
+  pop,
+  nudge,
+  settle,
+  reduceMotion,
+} from "./motion.js";
 const Admin = lazy(() => import("./Admin.jsx"));
 const hostedMirror = import.meta.env.VITE_SITES_MIRROR === "true";
 export async function request(url, options = {}) {
@@ -209,9 +219,19 @@ function DirectionExplorer({ s, entries, initialDirection, layout = "cards" }) {
       ? index
       : Math.min(1, Math.max(0, s.directions.length - 1));
   });
+  const listRef = useRef(null),
+    indicatorRef = useRef(null),
+    panelRef = useRef(null),
+    heightBefore = useRef(0);
+  useTabMotion({ listRef, indicatorRef, panelRef, selected, heightBefore });
   const current = s.directions[selected] || s.directions[0];
   if (!current) return null;
   const related = relatedEntries(current, entries).slice(0, 2);
+  function choose(index) {
+    if (index === selected) return;
+    heightBefore.current = panelRef.current?.offsetHeight || 0;
+    setSelected(index);
+  }
   function move(event, index) {
     const count = s.directions.length;
     const next =
@@ -226,7 +246,7 @@ function DirectionExplorer({ s, entries, initialDirection, layout = "cards" }) {
               : undefined;
     if (next === undefined) return;
     event.preventDefault();
-    setSelected(next);
+    choose(next);
     event.currentTarget.parentElement
       .querySelectorAll('[role="tab"]')
       [next].focus();
@@ -240,7 +260,9 @@ function DirectionExplorer({ s, entries, initialDirection, layout = "cards" }) {
         role="tablist"
         aria-label="研究方向"
         aria-orientation={vertical ? "vertical" : "horizontal"}
+        ref={listRef}
       >
+        <span className="tab-indicator" ref={indicatorRef} aria-hidden="true" />
         {s.directions.map((direction, index) => (
           <button
             key={index}
@@ -249,7 +271,7 @@ function DirectionExplorer({ s, entries, initialDirection, layout = "cards" }) {
             aria-controls="direction-panel"
             aria-selected={selected === index}
             tabIndex={selected === index ? 0 : -1}
-            onClick={() => setSelected(index)}
+            onClick={() => choose(index)}
             onKeyDown={(event) => move(event, index)}
           >
             {direction.title}
@@ -263,6 +285,7 @@ function DirectionExplorer({ s, entries, initialDirection, layout = "cards" }) {
         role="tabpanel"
         aria-labelledby={`direction-tab-${selected}`}
         tabIndex={0}
+        ref={panelRef}
       >
         <div className="direction-panel">
           <h3>{current.description}</h3>
@@ -290,22 +313,22 @@ function DirectionExplorer({ s, entries, initialDirection, layout = "cards" }) {
                     loading="lazy"
                   />
                 )}
-                <div className="direction-card-copy">
-                  <p className="result-kind">
+                <div className="direction-card-copy cg">
+                  <p className="result-kind cg-meta">
                     {entry.kind === "research"
                       ? entry.format || "研究介绍"
                       : "相关观点"}
                   </p>
-                  <h4>
+                  <h4 className="cg-title">
                     <ReadingLink entry={entry} spaceUrl={s.sourceUrl}>
                       {entry.title}
                     </ReadingLink>
                   </h4>
                   {(entry.subtitle || entry.summary) && (
-                    <p>{entry.subtitle || entry.summary}</p>
+                    <p className="cg-sum">{entry.subtitle || entry.summary}</p>
                   )}
                   <ReadingLink
-                    className="text-link"
+                    className="text-link cg-link"
                     entry={entry}
                     spaceUrl={s.sourceUrl}
                   />
@@ -326,70 +349,113 @@ function DirectionExplorer({ s, entries, initialDirection, layout = "cards" }) {
 }
 function CollaborationCTA({ title = "下一步，一起探索。" }) {
   return (
-    <section className="collaboration-cta container">
-      <h2>{title}</h2>
-      <p>联合研究、产业交流、学术研讨。</p>
-      <Link className="button" href="/contact">
+    <section className="collaboration-cta container" data-reveal-group>
+      <h2 data-reveal="title">{title}</h2>
+      <p data-reveal="fade">联合研究、产业交流、学术研讨。</p>
+      <Link className="button" href="/contact" data-reveal="fade">
         合作交流
         <ArrowRight size={18} />
       </Link>
     </section>
   );
 }
+/* 首屏标题按字拆分，供开场逐字浮现；读屏仍读取完整标题 */
+function HeroTitle({ text }) {
+  return (
+    <h1 aria-label={text.replace(/\n/g, "")}>
+      {text.split("\n").map((line, i) => (
+        <span className="hero-line" key={i} aria-hidden="true">
+          {[...line].map((char, j) => (
+            <span className="hero-char" key={j}>
+              {char}
+            </span>
+          ))}
+        </span>
+      ))}
+    </h1>
+  );
+}
+/* 标题语义断行：中文标点后断句，“卫星互联网”保持完整 */
+function SemanticTitle({ text }) {
+  return text.split(/(?<=[，；：？])/u).map((clause, index) => (
+    <span className="insight-title-clause" key={index}>
+      {clause.split(/(卫星互联网)/u).map((part, partIndex) =>
+        part === "卫星互联网" ? (
+          <span className="insight-title-term" key={partIndex}>
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </span>
+  ));
+}
 function Home({ s, entries, search }) {
   const insights = entries
     .filter((entry) => entry.kind === "insight")
     .sort((a, b) => (b.date || "").localeCompare(a.date || ""))
     .slice(0, 2);
-  const news = newestEntries(entries, "news").slice(0, 2);
+  const news = newestEntries(entries, "news").slice(0, 3);
   return (
     <div className="home-satellite">
-      <section className="apple-hero">
+      <section className="apple-hero" data-intro>
         <div className="hero-copy container">
-          <h1>{s.heroTitle}</h1>
-          <p>{s.heroSubtitle}</p>
+          <HeroTitle text={s.heroTitle} />
+          <p data-intro-item>{s.heroSubtitle}</p>
           <div className="actions">
-            <Link className="button" href="/research">
+            <Link className="button" href="/research" data-intro-item>
               探索研究
               <ArrowRight size={18} />
             </Link>
-            <Link className="button secondary" href="/about">
+            <Link className="button secondary" href="/about" data-intro-item>
               认识中心
             </Link>
           </div>
         </div>
         <SatelliteHero />
       </section>
-      <section className="home-intro container">
+      <section className="home-intro container" data-reveal-group>
         <div>
-          <h2>{s.aboutTitle}</h2>
-          <Link className="button secondary" href="/about">
+          <h2 data-reveal="title">{s.aboutTitle}</h2>
+          <Link className="button secondary" href="/about" data-reveal="fade">
             了解中心
             <ArrowRight size={18} />
           </Link>
         </div>
-        <p>{s.aboutIntro}</p>
+        <p data-reveal="fade" data-rule="y">
+          {s.aboutIntro}
+        </p>
       </section>
       <section className="home-research" id="research-directions">
         <div className="container">
-          <h2>从关键问题出发。</h2>
-          <DirectionExplorer
-            s={s}
-            entries={entries}
-            initialDirection={new URLSearchParams(search).get("direction")}
-          />
+          <h2 data-reveal="title">从关键问题出发。</h2>
+          <div data-reveal="fade">
+            <DirectionExplorer
+              s={s}
+              entries={entries}
+              initialDirection={new URLSearchParams(search).get("direction")}
+            />
+          </div>
         </div>
       </section>
       {insights.length > 0 && (
         <section className="container home-editorial">
-          <div className="section-heading">
-            <h2>新的思考，持续发生。</h2>
-            <TextLink to="/insights">全部观点</TextLink>
+          <div className="section-heading" data-reveal-group>
+            <h2 data-reveal="title">新的思考，持续发生。</h2>
+            <TextLink to="/insights" data-reveal="fade">
+              全部观点
+            </TextLink>
           </div>
           <div className="insight-pair">
-            {insights.map((entry) => (
-              <article key={entry.id}>
-                <div className="metadata">
+            {insights.map((entry, index) => (
+              <article
+                key={entry.id}
+                className="cg"
+                data-reveal="fade"
+                data-rule={index ? "y" : undefined}
+              >
+                <div className="metadata cg-meta">
                   {entry.category && (
                     <span className="tag">{entry.category}</span>
                   )}
@@ -397,26 +463,14 @@ function Home({ s, entries, search }) {
                     <time dateTime={entry.date}>{date(entry.date)}</time>
                   )}
                 </div>
-                <h3>
+                <h3 className="cg-title">
                   <ReadingLink entry={entry} spaceUrl={s.sourceUrl}>
-                    {entry.title.split(/(?<=[，；：])/u).map((clause, index) => (
-                      <span className="insight-title-clause" key={index}>
-                        {clause.split(/(卫星互联网)/u).map((part, partIndex) =>
-                          part === "卫星互联网" ? (
-                            <span className="insight-title-term" key={partIndex}>
-                              {part}
-                            </span>
-                          ) : (
-                            part
-                          ),
-                        )}
-                      </span>
-                    ))}
+                    <SemanticTitle text={entry.title} />
                   </ReadingLink>
                 </h3>
-                {entry.summary && <p>{entry.summary}</p>}
+                {entry.summary && <p className="cg-sum">{entry.summary}</p>}
                 <ReadingLink
-                  className="text-link"
+                  className="text-link cg-link"
                   entry={entry}
                   spaceUrl={s.sourceUrl}
                 />
@@ -427,14 +481,29 @@ function Home({ s, entries, search }) {
       )}
       {news.length > 0 && (
         <section className="container home-news">
-          {news.map((entry) => (
-            <Link key={entry.id} className="news-row" href={href(entry)}>
-              <span className="news-kind">中心动态</span>
-              <time>{date(entry.date)}</time>
-              <h3>{entry.title}</h3>
-              <ArrowRight size={20} />
-            </Link>
-          ))}
+          <div className="section-heading" data-reveal-group>
+            <h2 data-reveal="title">中心动态</h2>
+            <TextLink to="/news" data-reveal="fade">
+              全部动态
+            </TextLink>
+          </div>
+          <div className="home-news-list">
+            {news.map((entry) => (
+              <Link
+                key={entry.id}
+                className="news-row"
+                href={href(entry)}
+                data-reveal="fade"
+              >
+                <span className="news-kind">
+                  {entry.category || "中心动态"}
+                </span>
+                <time dateTime={entry.date}>{date(entry.date)}</time>
+                <h3>{entry.title}</h3>
+                <ArrowRight size={20} />
+              </Link>
+            ))}
+          </div>
         </section>
       )}
       <CollaborationCTA />
@@ -451,10 +520,16 @@ function About({ s, entries, search }) {
     <div className="about-rich">
       <section className="about-masthead" aria-labelledby="about-title">
         <div className="container about-masthead-inner">
-          <p className="page-kicker">关于中心</p>
-          <h1 id="about-title">{s.aboutTitle}</h1>
-          <p className="about-lead">{s.aboutIntro}</p>
-          <div className="actions">
+          <p className="page-kicker" data-reveal="fade">
+            关于中心
+          </p>
+          <h1 id="about-title" data-reveal="title">
+            {s.aboutTitle}
+          </h1>
+          <p className="about-lead" data-reveal="fade">
+            {s.aboutIntro}
+          </p>
+          <div className="actions" data-reveal="fade">
             <a className="button" href="#center-story">
               认识中心
             </a>
@@ -467,10 +542,11 @@ function About({ s, entries, search }) {
 
       <section
         className="about-foundation container"
+        data-reveal-group
         id="center-story"
         aria-labelledby="center-story-title"
       >
-        <div className="about-origin">
+        <div className="about-origin" data-reveal="fade">
           <h2 id="center-story-title">中心简介</h2>
           {founding?.date && (
             <div className="about-founded">
@@ -479,7 +555,7 @@ function About({ s, entries, search }) {
             </div>
           )}
         </div>
-        <div className="about-story">
+        <div className="about-story" data-reveal="fade" data-rule="y">
           <p className="about-institution">
             {s.affiliation}
             <span>{s.name}</span>
@@ -496,14 +572,16 @@ function About({ s, entries, search }) {
         className="about-foundations container"
         aria-labelledby="about-disciplines-title"
       >
-        <h2 id="about-disciplines-title">研究的学科基础</h2>
+        <h2 id="about-disciplines-title" data-reveal="fade">
+          研究的学科基础
+        </h2>
         <div className="about-discipline-list">
           {[
             [Broadcast, "信息通信工程"],
             [ShieldCheck, "网络空间安全"],
             [ChartBar, "产业经济管理"],
           ].map(([Icon, title]) => (
-            <div className="about-discipline" key={title}>
+            <div className="about-discipline" key={title} data-reveal="fade">
               <Icon size={29} weight="light" aria-hidden="true" />
               <h3>{title}</h3>
             </div>
@@ -517,16 +595,22 @@ function About({ s, entries, search }) {
         aria-labelledby="about-research-title"
       >
         <div className="container">
-          <div className="about-section-heading">
-            <h2 id="about-research-title">我们关注的问题。</h2>
-            <TextLink to="/research">全部研究与成果</TextLink>
+          <div className="about-section-heading" data-reveal-group>
+            <h2 id="about-research-title" data-reveal="title">
+              我们关注的问题。
+            </h2>
+            <TextLink to="/research" data-reveal="fade">
+              全部研究与成果
+            </TextLink>
           </div>
-          <DirectionExplorer
-            s={s}
-            entries={entries}
-            layout="editorial"
-            initialDirection={new URLSearchParams(search).get("direction")}
-          />
+          <div data-reveal="fade">
+            <DirectionExplorer
+              s={s}
+              entries={entries}
+              layout="editorial"
+              initialDirection={new URLSearchParams(search).get("direction")}
+            />
+          </div>
         </div>
       </section>
 
@@ -535,28 +619,32 @@ function About({ s, entries, search }) {
           className="about-practice container"
           aria-labelledby="about-practice-title"
         >
-          <div className="about-section-heading">
+          <div className="about-section-heading" data-reveal-group>
             <div>
-              <h2 id="about-practice-title">交流与实践。</h2>
-              <p>走进产业现场，围绕真实问题展开交流。</p>
+              <h2 id="about-practice-title" data-reveal="title">
+                交流与实践。
+              </h2>
+              <p data-reveal="fade">走进产业现场，围绕真实问题展开交流。</p>
             </div>
-            <TextLink to="/news">全部中心动态</TextLink>
+            <TextLink to="/news" data-reveal="fade">
+              全部中心动态
+            </TextLink>
           </div>
           <ol className="about-journal">
             {latest.map((entry) => (
-              <li key={entry.id}>
+              <li key={entry.id} data-reveal="fade">
                 <Link href={href(entry)} className="about-journal-link">
                   <time dateTime={entry.date}>
                     {date(entry.date) || "最新动态"}
                   </time>
-                  <span className="about-journal-content">
+                  <span className="about-journal-content cg">
                     {entry.category && (
-                      <span className="about-journal-category">
+                      <span className="about-journal-category cg-meta">
                         {entry.category}
                       </span>
                     )}
-                    <h3>{entry.title}</h3>
-                    {entry.summary && <p>{entry.summary}</p>}
+                    <h3 className="cg-title">{entry.title}</h3>
+                    {entry.summary && <p className="cg-sum">{entry.summary}</p>}
                   </span>
                   <ArrowUpRight size={22} aria-hidden="true" />
                 </Link>
@@ -566,17 +654,21 @@ function About({ s, entries, search }) {
         </section>
       )}
 
-      <section className="about-connect" aria-labelledby="about-connect-title">
+      <section
+        className="about-connect"
+        aria-labelledby="about-connect-title"
+        data-reveal-group
+      >
         <div className="container">
           <div>
-            <h2 id="about-connect-title">
+            <h2 id="about-connect-title" data-reveal="title">
               让研究与实践，
               <br />
               在这里相遇。
             </h2>
-            <p>联合研究、产业交流、学术研讨。</p>
+            <p data-reveal="fade">联合研究、产业交流、学术研讨。</p>
           </div>
-          <Link className="button" href="/contact">
+          <Link className="button" href="/contact" data-reveal="fade">
             与中心交流 <ArrowRight size={18} aria-hidden="true" />
           </Link>
         </div>
@@ -588,9 +680,11 @@ function About({ s, entries, search }) {
 function PageTitle({ en, label, title, description }) {
   return (
     <div className="page-title">
-      <p className="page-kicker">{label || en}</p>
-      <h1>{title}</h1>
-      {description && <p>{description}</p>}
+      <p className="page-kicker" data-reveal="fade">
+        {label || en}
+      </p>
+      <h1 data-reveal="title">{title}</h1>
+      {description && <p data-reveal="fade">{description}</p>}
     </div>
   );
 }
@@ -608,6 +702,8 @@ function Library({ kind, entries, s }) {
   ];
   const filtered = filterEntries(items, filters);
   const research = kind === "research";
+  const listRef = useRef(null);
+  useListMotion(listRef, filtered.map((e) => e.id).join("|"));
   return (
     <div
       className={`container library ${research ? "research-library" : "insights-library"}`}
@@ -620,7 +716,7 @@ function Library({ kind, entries, s }) {
           research ? "从商业模式到产业生态" : "理解产业变化，分享研究思考"
         }
       />
-      <div className="library-tools">
+      <div className="library-tools" data-reveal="fade">
         <div className="tabs" role="group" aria-label="内容分类">
           {cats.map((c) => (
             <button
@@ -652,10 +748,15 @@ function Library({ kind, entries, s }) {
           ? `共 ${items.length} 篇`
           : `找到 ${filtered.length} 篇，共 ${items.length} 篇`}
       </p>
-      <div className={research ? "research-list" : "article-list"}>
+      <div
+        className={research ? "research-list" : "article-list"}
+        ref={listRef}
+      >
         {filtered.map((e, i) => (
           <article
             key={e.id}
+            data-key={e.id}
+            data-reveal="fade"
             className={
               (e.featured && i === 0 ? "featured " : "") +
               (e.cover ? "with-cover" : "")
@@ -678,20 +779,24 @@ function Library({ kind, entries, s }) {
                 : {})}
             >
               {e.cover && <img src={e.cover} alt="" loading="lazy" />}
-              <div>
-                <div className="metadata">
+              <div className="cg">
+                <div className="metadata cg-meta">
                   {e.category && <span className="tag">{e.category}</span>}
                   {(e.format || e.channel) && (
                     <span>{e.format || e.channel}</span>
                   )}
                   {e.date && <time>{date(e.date)}</time>}
                 </div>
-                <h2>{e.title}</h2>
-                {(e.subtitle || e.summary) && <p>{e.subtitle || e.summary}</p>}
-                {research && e.subtitle && e.summary && (
-                  <p className="entry-summary">{e.summary}</p>
+                <h2 className="cg-title">
+                  <SemanticTitle text={e.title} />
+                </h2>
+                {(e.subtitle || e.summary) && (
+                  <p className="cg-sum">{e.subtitle || e.summary}</p>
                 )}
-                <span className="text-link">
+                {research && e.subtitle && e.summary && (
+                  <p className="entry-summary cg-sum2">{e.summary}</p>
+                )}
+                <span className="text-link cg-link">
                   {readingTarget(e, s.sourceUrl).label}
                   {readingTarget(e, s.sourceUrl).external ? (
                     <ArrowUpRight size={20} />
@@ -770,6 +875,14 @@ function News({ entries }) {
   const filtered = filterEntries(items, filters);
   const groups = groupNews(filtered.slice(0, limit));
   useEffect(() => setLimit(12), [filters]);
+  const listRef = useRef(null);
+  useListMotion(
+    listRef,
+    filtered
+      .slice(0, limit)
+      .map((e) => e.id)
+      .join("|"),
+  );
   return (
     <div className="container news-page">
       <PageTitle
@@ -778,7 +891,7 @@ function News({ entries }) {
         title="记录每一步探索。"
         description="记录研究进展与交流实践"
       />
-      <div className="archive-tools">
+      <div className="archive-tools" data-reveal="fade">
         <label className="search">
           <MagnifyingGlass size={20} aria-hidden="true" />
           <input
@@ -836,30 +949,36 @@ function News({ entries }) {
           </button>
         )}
       </div>
-      <div className="timeline">
+      <div className="timeline" ref={listRef}>
         {groups.map(([year, items]) => (
           <section
             className="news-year"
             key={year}
             aria-label={`${year}年动态`}
           >
-            <h2 className="year-label">{year}</h2>
+            <h2 className="year-label" data-reveal="fade">
+              {year}
+            </h2>
             <div>
               {items.map((e) => (
                 <Link
                   href={href(e) + returnQuery}
                   className="news-row"
                   key={e.id}
+                  data-key={e.id}
+                  data-reveal="fade"
                 >
                   <time dateTime={e.date || undefined}>
                     {e.date?.slice(5)
                       ? `${Number(e.date.slice(5, 7))}月${e.date.length === 10 ? `${Number(e.date.slice(8))}日` : ""}`
                       : ""}
                   </time>
-                  <div>
-                    {e.category && <span className="tag">{e.category}</span>}
-                    <h3>{e.title}</h3>
-                    <p>{e.summary}</p>
+                  <div className="cg">
+                    {e.category && (
+                      <span className="tag cg-meta">{e.category}</span>
+                    )}
+                    <h3 className="cg-title">{e.title}</h3>
+                    <p className="cg-sum">{e.summary}</p>
                   </div>
                   <ArrowRight size={26} />
                 </Link>
@@ -900,7 +1019,42 @@ function News({ entries }) {
     </div>
   );
 }
+function ReadingProgress({ articleRef }) {
+  const barRef = useRef(null);
+  useReadingProgress(barRef, articleRef);
+  return (
+    <div className="reading-progress" aria-hidden="true" data-visible="false">
+      <span ref={barRef} />
+    </div>
+  );
+}
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const update = () => setShow(scrollY > innerHeight * 1.2);
+    update();
+    addEventListener("scroll", update, { passive: true });
+    return () => removeEventListener("scroll", update);
+  }, []);
+  return (
+    <button
+      type="button"
+      className="back-to-top"
+      data-show={show}
+      tabIndex={show ? 0 : -1}
+      aria-hidden={!show}
+      aria-label="返回顶部"
+      onClick={() => {
+        scrollTo({ top: 0, behavior: reduceMotion() ? "auto" : "smooth" });
+        document.getElementById("main")?.focus({ preventScroll: true });
+      }}
+    >
+      <ArrowRight size={20} aria-hidden="true" />
+    </button>
+  );
+}
 function Detail({ entry, entries, s }) {
+  const articleRef = useRef(null);
   if (!entry)
     return (
       <div className="container empty">
@@ -924,8 +1078,12 @@ function Detail({ entry, entries, s }) {
   return (
     <article
       className={`container detail ${research ? "research-detail" : ""}`}
+      ref={articleRef}
     >
+      <ReadingProgress articleRef={articleRef} />
+      <BackToTop />
       <Link
+        data-reveal="fade"
         className="back-link"
         href={archiveReturnPath(location.search, e.kind)}
       >
@@ -937,16 +1095,25 @@ function Detail({ entry, entries, s }) {
             ? "中心动态"
             : "观点洞察"}
       </Link>
-      <div className="metadata">
+      <div className="metadata" data-reveal="fade">
         {e.category && <span className="tag">{e.category}</span>}
         {(e.format || e.channel) && <span>{e.format || e.channel}</span>}
         {e.date && <time dateTime={e.date}>{date(e.date)}</time>}
         {e.author && <span>{e.author}</span>}
       </div>
-      <h1>{e.title}</h1>
-      {e.subtitle && <p className="lead">{e.subtitle}</p>}
+      <h1 data-reveal="title">
+        <SemanticTitle text={e.title} />
+      </h1>
+      {e.subtitle && (
+        <p className="lead" data-reveal="fade">
+          {e.subtitle}
+        </p>
+      )}
       {e.cover && <img className="detail-cover" src={e.cover} alt={e.title} />}
-      <div className={research ? "research-detail-grid" : undefined}>
+      <div
+        className={research ? "research-detail-grid" : undefined}
+        data-reveal="fade"
+      >
         <div>
           {e.summary && !research && (
             <p className="detail-summary">{e.summary}</p>
@@ -1021,7 +1188,7 @@ function Detail({ entry, entries, s }) {
         )}
       </div>
       {related.length > 0 && (
-        <section className="related-reading">
+        <section className="related-reading" data-reveal="fade">
           <h2>延伸阅读</h2>
           {related.map((item) => (
             <ReadingLink
@@ -1067,6 +1234,23 @@ function Contact({ s, entries, search }) {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [id, setId] = useState("");
+  const choicesRef = useRef(null),
+    errorRef = useRef(null),
+    successRef = useRef(null),
+    firstChoice = useRef(true);
+  useEffect(() => {
+    if (firstChoice.current) {
+      firstChoice.current = false;
+      return;
+    }
+    pop(choicesRef.current?.querySelector('[aria-pressed="true"] .choice-status svg'));
+  }, [values.direction]);
+  useEffect(() => {
+    if (error) nudge(errorRef.current);
+  }, [error]);
+  useEffect(() => {
+    if (id) settle(successRef.current?.children);
+  }, [id]);
   async function submit(e) {
     e.preventDefault();
     setBusy(true);
@@ -1094,8 +1278,12 @@ function Contact({ s, entries, search }) {
         />
         <div className="contact-grid">
           <div className="contact-intro">
-            <h2>找到共同的问题。</h2>
-            <div className="cooperation-types">
+            <h2 data-reveal="title">找到共同的问题。</h2>
+            <div
+              className="cooperation-types"
+              ref={choicesRef}
+              data-reveal="fade"
+            >
               {[
                 ["联合研究", "共同探索产业发展中的关键问题。"],
                 ["产业交流", "连接产业观察与商业实践。"],
@@ -1130,9 +1318,9 @@ function Contact({ s, entries, search }) {
               </a>
             )}
           </div>
-          <div className="contact-form">
+          <div className="contact-form" data-reveal="fade">
             {id ? (
-              <div className="success" role="status">
+              <div className="success" role="status" ref={successRef}>
                 <CheckCircle size={46} />
                 <h2>合作意向已收到</h2>
                 <p>我们会根据你留下的邮箱与你联系。</p>
@@ -1240,13 +1428,20 @@ function Contact({ s, entries, search }) {
                     />
                   </label>
                   {error && (
-                    <p className="error" role="alert">
+                    <p className="error" role="alert" ref={errorRef}>
                       {error}
                     </p>
                   )}
-                  <button className="button" disabled={busy}>
+                  <button
+                    className={`button submit-button ${busy ? "is-busy" : ""}`}
+                    disabled={busy}
+                  >
                     {busy ? "正在提交…" : "提交合作意向"}
-                    <ArrowRight />
+                    {busy ? (
+                      <span className="spinner" aria-hidden="true" />
+                    ) : (
+                      <ArrowRight />
+                    )}
                   </button>
                   <p className="privacy-note">
                     你提供的信息仅用于本次合作沟通。
@@ -1265,6 +1460,12 @@ export function App() {
     [search, setSearch] = useState(location.search),
     [data, setData] = useState(null),
     [error, setError] = useState("");
+  const mainRef = useRef(null);
+  usePageMotion(
+    mainRef,
+    path + search,
+    Boolean(data) && !path.startsWith("/admin"),
+  );
   const refresh = () =>
     request("/api/content")
       .then((next) => {
@@ -1373,7 +1574,7 @@ export function App() {
         跳至正文
       </a>
       <Header path={path + search} settings={s} />
-      <main id="main" tabIndex={-1}>
+      <main id="main" tabIndex={-1} ref={mainRef}>
         {page}
       </main>
       <Footer s={s} />
