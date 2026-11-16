@@ -30,10 +30,10 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Run backend and sync tests
         run: npm test
-      - name: Run Sites compatibility tests
-        run: npm run test:sites
       - name: Build website
         run: npm run build
+      - name: Run Sites compatibility tests
+        run: npm run test:sites
       - name: Package application only
         run: |
           node --input-type=module -e 'import fs from "node:fs"; fs.writeFileSync("dist/client/deploy-version.json", JSON.stringify({commit: process.env.GITHUB_SHA, builtAt: new Date().toISOString()}));'
