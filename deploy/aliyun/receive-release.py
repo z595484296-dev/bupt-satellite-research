@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Forced SSH command: accept one bounded application archive, never a shell."""
 import datetime
+import hashlib
 import json
 import os
 import pathlib
@@ -12,6 +13,19 @@ import tarfile
 import tempfile
 
 command = os.environ.get("SSH_ORIGINAL_COMMAND", "")
+current = pathlib.Path('/opt/satellite-center/current').resolve()
+def digest(path):
+    with path.open('rb') as source:
+        return hashlib.file_digest(source, 'sha256').hexdigest()
+
+if command == 'manifest':
+    public = current / 'dist/client'
+    files = {}
+    for file in public.rglob('*'):
+        if file.is_file() and not file.is_symlink() and file.resolve().is_relative_to(public.resolve()):
+            files[file.relative_to(current).as_posix()] = digest(file)
+    print(json.dumps(files))
+    sys.exit(0)
 match = re.fullmatch(r"deploy ([0-9a-f]{40})", command)
 if not match:
     sys.exit("Only the website deploy command is allowed.")
@@ -35,11 +49,31 @@ try:
             raise ValueError("Application archive is too large")
         for member in members:
             path = pathlib.PurePosixPath(member.name)
-            allowed = member.name in ("package.json", "package-lock.json", "server", "dist", "dist/client") or member.name.startswith(("server/", "dist/client/"))
+            allowed = member.name in ("package.json", "package-lock.json", "asset-manifest.json", "server", "dist", "dist/client") or member.name.startswith(("server/", "dist/client/"))
             if not allowed or path.is_absolute() or ".." in path.parts or not (member.isfile() or member.isdir()):
                 raise ValueError("Unexpected archive path: " + member.name)
         bundle.extractall(candidate, filter="data")
     archive.unlink()
+    manifest_path = candidate / 'asset-manifest.json'
+    if manifest_path.stat().st_size > 2 * 1024 * 1024:
+        raise ValueError('Static manifest is too large')
+    manifest = json.loads(manifest_path.read_text())
+    if not isinstance(manifest, dict) or len(manifest) > 10000:
+        raise ValueError('Invalid static manifest')
+    for name, expected in manifest.items():
+        relative = pathlib.PurePosixPath(name)
+        if not name.startswith('dist/client/') or relative.is_absolute() or '..' in relative.parts or '\\' in name or not re.fullmatch(r'[0-9a-f]{64}', expected):
+            raise ValueError('Invalid static manifest entry')
+        target = candidate / name
+        if not target.exists():
+            existing = current / name
+            if not existing.is_file() or existing.is_symlink() or not existing.resolve().is_relative_to((current / 'dist/client').resolve()) or digest(existing) != expected:
+                raise ValueError('Previous release cannot supply unchanged asset: ' + name)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(existing, target)
+        if not target.is_file() or target.is_symlink() or digest(target) != expected:
+            raise ValueError('Static file failed SHA-256 verification: ' + name)
+    manifest_path.unlink()
     for required in ("package.json", "package-lock.json", "server/index.mjs", "dist/client/index.html"):
         if not (candidate / required).is_file():
             raise ValueError("Missing release file: " + required)

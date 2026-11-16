@@ -22,7 +22,7 @@ FlowUs 每 5 分钟检查一次。观点库仍按“状态 = 研究中心”发�
 - GitHub 部署成功后检查首页和内容 API；启动失败会切回上一版本。`/deploy-version.json` 提供已部署的提交号。
 - 后台在临时公网 HTTP 入口受限。通过 SSH 隧道访问本机回环地址；配置 HTTPS 后再开放正式后台入口并启用 `COOKIE_SECURE=true`。
 
-GitHub 使用独立 `satellite-deploy` 账号，SSH 密钥只能发送指定发布命令，不能打开交互 shell、做端口转发或直接读取业务数据。接收脚本限制包大小、文件路径和文件类型。服务器只允许此账号通过固定脚本切换网站版本。
+GitHub 使用独立 `satellite-deploy` 账号，SSH 密钥只能读取公开静态资源的校验摘要和发送指定发布命令，不能打开交互 shell、做端口转发或直接读取业务数据。发布时只上传变化的静态文件，未变化的资源从上一版本复制，并逐一校验 SHA-256。接收脚本限制包大小、文件路径和文件类型。服务器只允许此账号通过固定脚本切换网站版本。
 
 Actions 所需仓库 Secrets：`ALIYUN_HOST`、`ALIYUN_DEPLOY_KEY`、`ALIYUN_KNOWN_HOSTS`。私钥和主机指纹通过 Secrets 配置；不要把服务器密码、FlowUs 授权或 `.env` 写入仓库。
 

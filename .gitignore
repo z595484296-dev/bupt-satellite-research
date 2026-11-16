@@ -25,3 +25,4 @@ secrets/
 *.key
 .DS_Store
 Thumbs.db
+asset-manifest.json

@@ -7,6 +7,7 @@ grep -Eq '^ssh-ed25519 [A-Za-z0-9+/=]+( .*)?$' "$key_file"
 if ! id satellite-deploy >/dev/null 2>&1; then
   useradd --system --home-dir /var/lib/satellite-deploy --create-home --shell /bin/bash satellite-deploy
 fi
+usermod -a -G satellite-center satellite-deploy
 install -d -m 0700 -o satellite-deploy -g satellite-deploy /var/lib/satellite-deploy/incoming
 install -d -m 0755 -o root -g root /var/lib/satellite-deploy/.ssh
 install -m 0755 "$script_dir/receive-release.py" /usr/local/sbin/satellite-center-receive

@@ -34,10 +34,9 @@ jobs:
         run: npm run build
       - name: Run Sites compatibility tests
         run: npm run test:sites
-      - name: Package application only
+      - name: Record release version
         run: |
           node --input-type=module -e 'import fs from "node:fs"; fs.writeFileSync("dist/client/deploy-version.json", JSON.stringify({commit: process.env.GITHUB_SHA, builtAt: new Date().toISOString()}));'
-          tar -czf "$RUNNER_TEMP/website.tar.gz" package.json package-lock.json server dist/client
       - name: Deploy to Aliyun and check public release
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         env:
@@ -53,8 +52,12 @@ jobs:
           trap 'rm -rf "$ssh_dir"' EXIT
           printf '%s\n' "$DEPLOY_KEY" > "$ssh_dir/key"
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
-          ssh -i "$ssh_dir/key" -o BatchMode=yes -o StrictHostKeyChecking=yes \
+          ssh_command=(ssh -i "$ssh_dir/key" -o BatchMode=yes -o StrictHostKeyChecking=yes \
             -o UserKnownHostsFile="$ssh_dir/known_hosts" -o ConnectTimeout=20 \
-            satellite-deploy@"$DEPLOY_HOST" "deploy $GITHUB_SHA" < "$RUNNER_TEMP/website.tar.gz"
+            satellite-deploy@"$DEPLOY_HOST")
+          "${ssh_command[@]}" manifest > "$RUNNER_TEMP/server-manifest.json"
+          node scripts/prepare-aliyun-package.mjs "$RUNNER_TEMP/server-manifest.json" "$RUNNER_TEMP/deploy-files.list"
+          tar -czf "$RUNNER_TEMP/website.tar.gz" --null -T "$RUNNER_TEMP/deploy-files.list"
+          "${ssh_command[@]}" "deploy $GITHUB_SHA" < "$RUNNER_TEMP/website.tar.gz"
           curl --fail --silent --show-error --retry 3 "http://$DEPLOY_HOST/deploy-version.json" > "$RUNNER_TEMP/live-version.json"
           node --input-type=module -e 'import fs from "node:fs"; const v=JSON.parse(fs.readFileSync(process.env.RUNNER_TEMP+"/live-version.json")); if(v.commit!==process.env.GITHUB_SHA) throw new Error("Public release does not match commit"); console.log("Verified public release:",v.commit);'
