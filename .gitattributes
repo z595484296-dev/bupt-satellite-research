@@ -1,0 +1,6 @@
+deploy/aliyun/*.sh text eol=lf
+deploy/aliyun/*.py text eol=lf
+deploy/aliyun/*.conf text eol=lf
+deploy/aliyun/*.service text eol=lf
+deploy/aliyun/*.timer text eol=lf
+.github/workflows/*.yml text eol=lf

@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily satellite center backup
+
+[Timer]
+OnCalendar=*-*-* 03:20:00 Asia/Shanghai
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target

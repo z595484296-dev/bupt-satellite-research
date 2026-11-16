@@ -1,0 +1,32 @@
+[Unit]
+Description=Satellite Internet Research Center website
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=satellite-center
+Group=satellite-center
+WorkingDirectory=/opt/satellite-center/current
+EnvironmentFile=/etc/satellite-center/website.env
+Environment=HOME=/var/lib/satellite-center
+ExecStart=/usr/local/bin/node server/index.mjs --production
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+RuntimeDirectory=satellite-center
+RuntimeDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/satellite-center /run/satellite-center
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=1G
+TasksMax=128
+
+[Install]
+WantedBy=multi-user.target

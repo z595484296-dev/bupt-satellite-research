@@ -1,0 +1,9 @@
+[Unit]
+Description=Back up satellite center content and private configuration
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/satellite-center-backup
+UMask=0077
+Nice=10
+IOSchedulingClass=idle

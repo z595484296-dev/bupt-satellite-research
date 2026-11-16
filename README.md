@@ -1,6 +1,6 @@
 # 卫星互联网研究中心网站
 
-私有源码交接包，供指定协作者继续优化。包含六个公开栏目、React 前端、Node 内容后台、FlowUs 单向同步及 Sites 镜像实现；不包含生产账号、令牌或合作留言。
+卫星互联网研究中心网站源码，供协作者继续优化。包含六个公开栏目、React 前端、Node 内容后台、FlowUs 单向同步及 Sites 镜像实现；不包含生产账号、令牌或合作留言。
 
 ## 快速开始
 
@@ -38,4 +38,4 @@ npm run test:sites
 
 详见 [交接说明](docs/HANDOFF.md)、[内容维护指南](docs/CONTENT-GUIDE.md)及 [FlowUs 接入指南](docs/FLOWUS-SETUP.md)。页面入口在 `src/App.jsx`，本轮首页样式在 `src/home-satellite.css`，静态卫星在 `src/SatelliteHero.jsx`，服务入口在 `server/index.mjs`。
 
-现有 Sites 的内容更新仍依赖本机 Node 服务；电脑离线时展示最后成功快照。全天自动同步需要另行部署常驻 Node 服务。仓库保持私有，第三方文章、字体、图标和图片的权利不因源码交接而改变。
+网站现已迁移到阿里云常驻 Node 服务，FlowUs 同步不再依赖个人电脑开机。`main` 分支提交经测试和构建后自动部署到阿里云；业务数据独立保存，不随源码覆盖。部署、后台访问和原 Sites 镜像状态详见 [阿里云维护说明](docs/ALIYUN-DEPLOYMENT.md)。第三方文章、字体、图标和图片的权利不因源码公开而改变。
