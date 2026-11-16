@@ -1,6 +1,6 @@
 # 阿里云部署与代码更新
 
-该仓库的 `main` 分支连接阿里云服务器。提交到 `main` 后，GitHub Actions 会安装依赖、运行网站和 Sites 测试、构建前端，再通过专用 SSH 部署密钥发布。PR 只测试和构建，不发布。也可以在 Actions 的 **Test and deploy to Aliyun** 中手动运行主分支。
+该仓库的 `main` 分支连接阿里云服务器。功能分支通过 `website` 检查、获得仓库负责人审核并合并到 `main` 后，GitHub Actions 会安装依赖、运行网站和 Sites 测试、构建前端，再通过专用 SSH 部署密钥发布。PR 只测试和构建，不发布。也可以在 Actions 的 **Test and deploy to Aliyun** 中手动运行已合并的主分支版本。协作要求见 [协作指南](../CONTRIBUTING.md)。
 
 本次迁移保留已有页面设计。临时访问地址为 `http://47.93.3.125/`。`satnetresearch.cn` 已注册并通过实名认证，Nginx 已预配置根域名和 `www`；正式域名访问还需完成 ICP 备案、DNS 解析和 HTTPS。
 
