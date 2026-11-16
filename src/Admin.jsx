@@ -111,7 +111,7 @@ export default function Admin({ onUpdate }) {
         <div className="login-card">
           <p className="eyebrow">CONTENT STUDIO</p>
           <h1>内容管理</h1>
-          <p>卫星互联网研究中心</p>
+          <p>北京邮电大学经济管理学院卫星互联网研究中心</p>
           <form
             onSubmit={(e) => {
               e.preventDefault();

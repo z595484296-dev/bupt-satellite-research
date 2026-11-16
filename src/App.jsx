@@ -156,7 +156,11 @@ function Header({ path, settings }) {
       className={`site-header ${scrolled ? "is-scrolled" : ""} ${open ? "menu-open" : ""}`}
     >
       <div className="header-inner">
-        <Link href="/" className="wordmark">
+        <Link
+          href="/"
+          className="wordmark"
+          aria-label={settings.affiliation + settings.name}
+        >
           {settings.name}
           <span>{settings.affiliation}</span>
         </Link>
@@ -190,7 +194,11 @@ function Footer({ s }) {
   return (
     <footer>
       <div className="container footer-inner">
-        <Link className="footer-brand" href="/">
+        <Link
+          className="footer-brand"
+          href="/"
+          aria-label={s.affiliation + s.name}
+        >
           <strong>{s.name}</strong>
           <span>{s.affiliation}</span>
         </Link>
@@ -1510,15 +1518,17 @@ export function App() {
     return () => cancelAnimationFrame(frame);
   }, [path, search, Boolean(data)]);
   useEffect(() => {
-    document.title =
-      (data?.entries.find((e) => href(e) === path)?.title ||
-        nav.find(([p]) => p !== "/" && path.startsWith(p))?.[1] ||
-        data?.settings.name ||
-        "卫星互联网研究中心") +
-      " · " +
-      (data?.settings.affiliation || "北京邮电大学");
+    const centerName =
+      (data?.settings.affiliation || "北京邮电大学经济管理学院") +
+      (data?.settings.name || "卫星互联网研究中心");
+    const pageTitle =
+      data?.entries.find((e) => href(e) === path)?.title ||
+      nav.find(([p]) => p !== "/" && path.startsWith(p))?.[1];
+    document.title = pageTitle ? `${pageTitle} · ${centerName}` : centerName;
     const entry = data?.entries.find((e) => href(e) === path);
-    const description = entry?.summary || entry?.title || data?.settings.intro;
+    const description =
+      entry?.summary || entry?.title ||
+      `${centerName}，聚焦卫星互联网商业化与产业生态建设，连接技术创新与商业实践。`;
     if (description)
       document
         .querySelector('meta[name="description"]')

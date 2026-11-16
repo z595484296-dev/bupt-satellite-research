@@ -93,11 +93,23 @@ export function validateConfig(raw) {
   };
 }
 export const fingerprint = (entry) => hash(entry || null);
+// The source may retain the former institutional name. Correct only that exact
+// name for website display; keep source records, URLs and sync digests intact.
+const publicEntry = ({ flowus, ...entry }) => {
+  for (const field of ["title", "subtitle", "summary", "body", "author"]) {
+    if (typeof entry[field] === "string")
+      entry[field] = entry[field].replaceAll(
+        "北京邮电大学卫星互联网研究中心",
+        "北京邮电大学经济管理学院卫星互联网研究中心",
+      );
+  }
+  return entry;
+};
 export const publicContent = (data) => ({
   ...data,
   entries: data.entries
     .filter((e) => e.status === "published")
-    .map(({ flowus, ...e }) => e),
+    .map(publicEntry),
 });
 const defaultConfig = {
   discoveryRoot: "",
