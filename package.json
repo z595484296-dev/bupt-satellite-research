@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --env-file-if-exists=.env server/index.mjs",
     "start": "node --env-file-if-exists=.env server/index.mjs --production",
-    "test": "node --test tests/content-navigation.test.mjs tests/atomic-file.test.mjs tests/hosted-mirror.test.mjs tests/sites-mirror-lock.test.mjs tests/api.test.mjs tests/flowus.test.mjs tests/flowus-cli.test.mjs tests/flowus-source-shapes.test.mjs",
+    "test": "node --test tests/content-navigation.test.mjs tests/atomic-file.test.mjs tests/hosted-mirror.test.mjs tests/sites-mirror-lock.test.mjs tests/api.test.mjs tests/flowus.test.mjs tests/flowus-cli.test.mjs tests/flowus-source-shapes.test.mjs tests/sites-pull-mirror.test.mjs",
     "build": "vite build && node scripts/prepare-sites-build.mjs",
     "preview": "vite preview",
     "test:sites": "node --test tests/sites-worker.test.mjs"

@@ -15,12 +15,13 @@ export function createSitesMirror({ flowusBusy = async () => false } = {}) {
   const bypass = process.env.SITES_ACCESS_TOKEN;
   const enabled =
     /^https:\/\/[a-z0-9.-]+\.chatgpt\.site$/.test(url) && !!token && !!bypass;
+  const contentPushEnabled = process.env.SITES_CONTENT_PUSH_ENABLED !== "false";
   const dispatcher = enabled ? new EnvHttpProxyAgent() : null;
   let running = false;
   const statePath = path.join(dataDir, "sites-mirror-state.json");
   let state = { lastSuccess: null, error: "", entries: 0, digest: "" };
   async function status() {
-    return { ...state, enabled, running, url: enabled ? url : "" };
+    return { ...state, enabled, running, contentPushEnabled, url: enabled ? url : "" };
   }
   async function call(route, body, options = {}) {
     const response = await fetch(url + route, {
@@ -46,42 +47,46 @@ export function createSitesMirror({ flowusBusy = async () => false } = {}) {
       throw new Error(`Sites 同步请求失败（${response.status}），将自动重试。`);
     return response.json();
   }
+  async function pushContent() {
+    const content = publicContent(await readData("content.json"));
+    const files = [];
+    for (const url of new Set(
+      JSON.stringify(content).match(mediaPattern) || [],
+    )) {
+      const bytes = await readFile(path.join(mediaDir, path.basename(url)));
+      files.push({ url, size: bytes.length, hash: sha(bytes) });
+    }
+    const digest = sha(JSON.stringify({ content, files }));
+    const remote = await call("/api/sync/prepare", { files });
+    if (digest !== remote.digest || remote.missing.length) {
+      for (const url of remote.missing) {
+        const file = files.find((f) => f.url === url);
+        if (!file) throw new Error("Sites 返回了未知文件，已停止同步。");
+        await call(
+          "/api/sync" + url,
+          await readFile(path.join(mediaDir, path.basename(url))),
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/octet-stream",
+              "X-Content-SHA256": file.hash,
+            },
+          },
+        );
+      }
+      // If a local editor changed content during upload, use the next pass.
+      if ((await readData("content.json")).version !== content.version)
+        throw new Error("内容正在更新，将在下一轮完成 Sites 同步。");
+      await call("/api/sync/commit", { content, files, digest });
+    }
+    return { entries: content.entries.length, media: files.length, digest };
+  }
   async function run() {
     if (!enabled || running) return status();
     running = true;
     try {
       if (await flowusBusy()) return { ...(await status()), running: false };
-      const content = publicContent(await readData("content.json"));
-      const files = [];
-      for (const url of new Set(
-        JSON.stringify(content).match(mediaPattern) || [],
-      )) {
-        const bytes = await readFile(path.join(mediaDir, path.basename(url)));
-        files.push({ url, size: bytes.length, hash: sha(bytes) });
-      }
-      const digest = sha(JSON.stringify({ content, files }));
-      const remote = await call("/api/sync/prepare", { files });
-      if (digest !== remote.digest || remote.missing.length) {
-        for (const url of remote.missing) {
-          const file = files.find((f) => f.url === url);
-          if (!file) throw new Error("Sites 返回了未知文件，已停止同步。");
-          await call(
-            "/api/sync" + url,
-            await readFile(path.join(mediaDir, path.basename(url))),
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/octet-stream",
-                "X-Content-SHA256": file.hash,
-              },
-            },
-          );
-        }
-        // If a local editor changed content during upload, use the next pass.
-        if ((await readData("content.json")).version !== content.version)
-          throw new Error("内容正在更新，将在下一轮完成 Sites 同步。");
-        await call("/api/sync/commit", { content, files, digest });
-      }
+      const pushed = contentPushEnabled ? await pushContent() : null;
       const inbox = await call("/api/sync/inquiries");
       if (inbox.items?.length) {
         await mutateData("inquiries.json", (old) => {
@@ -94,13 +99,9 @@ export function createSitesMirror({ flowusBusy = async () => false } = {}) {
           ids: inbox.items.map((item) => item.id),
         });
       }
-      state = {
-        lastSuccess: new Date().toISOString(),
-        entries: content.entries.length,
-        media: files.length,
-        digest,
-        error: "",
-      };
+      state = pushed
+        ? { ...pushed, lastSuccess: new Date().toISOString(), error: "" }
+        : { ...state, error: "" };
     } catch (e) {
       state = {
         ...state,
